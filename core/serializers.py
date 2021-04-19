@@ -16,13 +16,13 @@ class MessageModelSerializer(ModelSerializer):
         recipient = get_object_or_404(
             User, username=validated_data['recipient']['username']
         )
-        msg = MessageModel(recipient=recipient, body=validated_data['body'], user=user,image=validated_data['image'])
+        msg = MessageModel(recipient=recipient, body=validated_data['body'], user=user,files=validated_data['files'])
         msg.save()
         return msg
 
     class Meta:
         model = MessageModel
-        fields = ('id', 'user', 'recipient', 'timestamp', 'body','image')
+        fields = ('id', 'user', 'recipient', 'timestamp', 'body','files')
 
 
 class UserModelSerializer(ModelSerializer):

@@ -37,7 +37,7 @@ class MessageModel(Model):
         'timestamp', auto_now_add=True, editable=False, db_index=True
     )
     body = TextField('body',null=True)
-    image = models.ImageField(upload_to=upload_path,  null=True)
+    files = models.FileField(upload_to=upload_path,  null=True)
 
     def __str__(self):
         return str(self.id)

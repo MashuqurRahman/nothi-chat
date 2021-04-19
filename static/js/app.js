@@ -10,25 +10,25 @@ let contactProfile = document.getElementById('receiver')
 let userProfile = document.getElementById('user-profile')
 let searchInput = $('#search-input')
 let form_data = new FormData();
-$('#OpenImgUpload').click(function(){ console.log("upload icon triggered!!");  $('#imgupload').trigger('click'); });
+$('#OpenFileUpload').click(function(){ console.log("upload icon triggered!!");  $('#FileUpload').trigger('click'); });
 // $('#OpenImgUpload').click(function(){
 //      console.log("the upload is clicked !!!")
     
 //     });
 
+OpenFileUpload
+
+
+document.getElementById('FileUpload').addEventListener('change', handleFile);
 
 
 
-document.getElementById('imgupload').addEventListener('change', handleImage);
-
-
-
-function handleImage(e) {
-    uploadedImg = e.target.files[0];
+function handleFile(e) {
+    uploadedFile = e.target.files[0];
     // console.log(uploadedImg);
-    if(uploadedImg !=null){
+    if(uploadedFile !=null){
         let body=null;
-        sendMessage(currentRecipient,body,uploadedImg)
+        uploadFile(currentRecipient,body,uploadedFile)
     }
 }
 
@@ -103,10 +103,10 @@ function drawMessage(message) {
     // console.log(today.toLocaleDateString("hi-IN", options)); 
     let body=null;
     if(message.body==="null"){
-        var fileName=message.image.split("/");
+        var fileName=message.files.split("/");
         fileName=fileName[fileName.length-1]
 
-        body=`<a href=${message.image} target="_blank" >${fileName}</a>`
+        body=`<a href=${message.files} target="_blank" >${fileName}</a>`
         // console.log("the image is ", message.image)
     }
     else{
@@ -179,14 +179,14 @@ function getMessageById(message) {
 }
 
 // Send message to messages api
-function sendMessage(recipient, body,img) {
+function  uploadFile(recipient, body,file) {
    
     let form_data = new FormData();
-    form_data.append("image", img);
+    form_data.append("files", file);
     form_data.append("recipient",recipient)
     form_data.append("body",body)
     console.log(form_data.get("body"))
-    console.log(form_data.get("image"))
+    
     console.log(form_data.get("recipient"))
 
 
@@ -297,7 +297,7 @@ $(document).ready(function () {
          $.post('/api/v1/message/', {
           recipient: currentRecipient,
           body: body,
-          image:null
+          files:null
       }).fail(function () {
           alert('Error! Check console!');
       });

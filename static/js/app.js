@@ -9,12 +9,17 @@ let visibleInput=$('input-visibility')
 let contactProfile = document.getElementById('receiver')
 let userProfile = document.getElementById('user-profile')
 let searchInput = $('#search-input')
-// let form_data = new FormData();
-// $('#OpenImgUpload').click(function(){ $('#imgupload').trigger('click'); });
+let form_data = new FormData();
+$('#OpenImgUpload').click(function(){ console.log("upload icon triggered!!");  $('#imgupload').trigger('click'); });
+// $('#OpenImgUpload').click(function(){
+//      console.log("the upload is clicked !!!")
+    
+//     });
 
 
 
-// document.getElementById('imgupload').addEventListener('change', handleImage);
+
+document.getElementById('imgupload').addEventListener('change', handleImage);
 
 
 
@@ -88,7 +93,7 @@ function drawMessage(message) {
     const month=date.toLocaleString('default', { month: 'long' })
     
     
-    console.log(hour)
+    console.log("the hour is ",hour)
 
     // var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     // date=date.toLocaleDateString("en-US")
@@ -96,14 +101,24 @@ function drawMessage(message) {
     // console.log(date.toLocaleDateString("en-US")); // 9/17/2016
     // console.log(today.toLocaleDateString("en-US", options)); // Saturday, September 17, 2016
     // console.log(today.toLocaleDateString("hi-IN", options)); 
+    let body=null;
+    if(message.body==="null"){
+        var fileName=message.image.split("/");
+        fileName=fileName[fileName.length-1]
 
+        body=`<a href=${message.image} target="_blank" >${fileName}</a>`
+        // console.log("the image is ", message.image)
+    }
+    else{
+        body=message.body
+    }
     if (message.user === currentUser) {
          const messageItem= `  <div class="row message">
          <div class="d-flex flex-row-reverse  w-50 ml-auto " style="margin-left: auto;">
           
              <div class="p-2">
                  <span class="text-muted" style="font-size: 14px;">${message.user} 11|12 pm</span>
-                 <p class="sender-color p-2 receiver-color" style="margin: 0px;">${message.body}</p>
+                 <p class="sender-color p-2 receiver-color" style="margin: 0px;">${body}</p>
              </div>
              
              
@@ -164,15 +179,35 @@ function getMessageById(message) {
 }
 
 // Send message to messages api
-function sendMessage(recipient, body) {
+function sendMessage(recipient, body,img) {
    
-    $.post('/api/v1/message/', {
-        recipient: recipient,
-        body: body,
-        image:null
-    }).fail(function () {
-        alert('Error! Check console!');
-    });
+    let form_data = new FormData();
+    form_data.append("image", img);
+    form_data.append("recipient",recipient)
+    form_data.append("body",body)
+    console.log(form_data.get("body"))
+    console.log(form_data.get("image"))
+    console.log(form_data.get("recipient"))
+
+
+
+
+
+
+    axios.post("http://127.0.0.1:8000/api/v1/message/", form_data, {
+        header: {
+            "Content-Type": "multipart/form-data"
+        }
+    })
+        .then(response => console.log(response))
+   
+    // $.post('/api/v1/message/', {
+    //     recipient: recipient,
+    //     body: body,
+    //     image:img
+    // }).fail(function () {
+    //     alert('Error! Check console!');
+    // });
     
     userList.children('.user').remove()
 }
@@ -255,10 +290,17 @@ $(document).ready(function () {
 
   chatButton.click(function () {
     if (chatInput.val().length > 0) {
-      // console.log((currentRecipient));
-    
-      sendMessage(currentRecipient, chatInput.val());
-      chatInput.val('');
+        // console.log((currentRecipient));
+        const body= chatInput.val();
+      //   sendMessage(currentRecipient, chatInput.val(), image);
+        chatInput.val('');
+         $.post('/api/v1/message/', {
+          recipient: currentRecipient,
+          body: body,
+          image:null
+      }).fail(function () {
+          alert('Error! Check console!');
+      });
     }
   });
 

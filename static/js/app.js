@@ -9,6 +9,8 @@ let visibleInput=$('input-visibility')
 let contactProfile = document.getElementById('receiver')
 let userProfile = document.getElementById('user-profile')
 let searchInput = $('#search-input')
+let fileSharing=$('#file_sharing')
+let fileSection=$('#file-section')
 let form_data = new FormData();
 $('#OpenFileUpload').click(function(){ console.log("upload icon triggered!!");  $('#FileUpload').trigger('click'); });
 // $('#OpenImgUpload').click(function(){
@@ -16,8 +18,7 @@ $('#OpenFileUpload').click(function(){ console.log("upload icon triggered!!");  
     
 //     });
 
-OpenFileUpload
-
+let selectedUserName = null
 
 document.getElementById('FileUpload').addEventListener('change', handleFile);
 
@@ -34,8 +35,45 @@ function handleFile(e) {
 
 // Fetch all users from database through api
 function onSelectUser(user,username_eng){
+   
     setCurrentRecipient(user,username_eng)
     // console.log(user)
+
+    getSharedFiles(user)
+   
+}
+
+function getSharedFiles(user)
+{
+    $.getJSON(`/api/v1/message/?target=${user}`, function (data) {
+        fileSharing.children('.shared').remove();
+
+        
+        for (let i = data['results'].length - 1; i >= 0; i--) {
+            console.log()
+            if(data['results'][i]['files']!=null)
+           { let fileName=data['results'][i]['files'].split("/")
+             fileName=fileName[fileName.length-1]
+            const sharedItem=
+            `
+            <a href="${data['results'][i]['files']}" target="_blank" class="shared list-group-item list-group-item-action">${fileName}</a>
+            
+            `
+            $(sharedItem).appendTo('#file_sharing');
+           }
+            
+        }
+
+    });
+    console.log("user selected", user)
+}
+function addFilesFromSocket(file,fileName){
+    const sharedItem=
+            `
+            <a href="${file}" target="_blank" class="shared list-group-item list-group-item-action">${fileName}</a>
+            
+            `
+            $(sharedItem).appendTo('#file_sharing');
 }
 
 function updateUserList() {
@@ -108,6 +146,7 @@ function drawMessage(message) {
 
         body=`<a href=${message.files} target="_blank" >${fileName}</a>`
         // console.log("the image is ", message.image)
+        addFilesFromSocket(message.files,fileName )
     }
     else{
         body=message.body
@@ -307,6 +346,7 @@ $(document).ready(function () {
   // Receive message from websocket
   socket.onmessage = function (e) {
     getMessageById(e.data);
+    console.log(e.data)
   };
 });
 function onSelectSearchedUser(selctedSearchedUser,selctedSearchedUserID,usrName){
